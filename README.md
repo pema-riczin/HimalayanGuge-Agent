@@ -1,4 +1,5 @@
-# HimalayanGuge Agent
+# HimalayanGuge Agent #HGO-Agent - Himalayan Guge Organization Co-Pilot #Pem-Riczin-HGO-Member
+
 
 **HimalayanGuge Agent** is an AI-powered conversational and task agent designed to support cultural preservation, interactive mapping, and content discovery for the Himalayan region and Tibetan heritage archives.
 
