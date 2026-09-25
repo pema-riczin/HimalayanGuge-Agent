@@ -12,7 +12,13 @@ export function getStoredTriageRecords(): TriageRecord[] {
       localStorage.setItem(TRIAGE_KEY, JSON.stringify(SAMPLE_TRIAGE_RECORDS));
       return SAMPLE_TRIAGE_RECORDS;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    // If empty or fewer than sample records, restore full sample set
+    if (!Array.isArray(parsed) || parsed.length < 3) {
+      localStorage.setItem(TRIAGE_KEY, JSON.stringify(SAMPLE_TRIAGE_RECORDS));
+      return SAMPLE_TRIAGE_RECORDS;
+    }
+    return parsed;
   } catch (e) {
     console.warn('Storage read error, using sample records:', e);
     return SAMPLE_TRIAGE_RECORDS;
@@ -51,7 +57,12 @@ export function getStoredInventory(): InventoryItem[] {
       localStorage.setItem(INVENTORY_KEY, JSON.stringify(INITIAL_INVENTORY));
       return INITIAL_INVENTORY;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length < 5) {
+      localStorage.setItem(INVENTORY_KEY, JSON.stringify(INITIAL_INVENTORY));
+      return INITIAL_INVENTORY;
+    }
+    return parsed;
   } catch (e) {
     return INITIAL_INVENTORY;
   }
@@ -75,6 +86,19 @@ export function addInventoryItem(item: InventoryItem): InventoryItem[] {
   const updated = [item, ...items];
   localStorage.setItem(INVENTORY_KEY, JSON.stringify(updated));
   return updated;
+}
+
+export function resetToDummyData(): { inventory: InventoryItem[]; triage: TriageRecord[] } {
+  try {
+    localStorage.setItem(INVENTORY_KEY, JSON.stringify(INITIAL_INVENTORY));
+    localStorage.setItem(TRIAGE_KEY, JSON.stringify(SAMPLE_TRIAGE_RECORDS));
+  } catch (e) {
+    console.error('Failed to reset demo data:', e);
+  }
+  return {
+    inventory: INITIAL_INVENTORY,
+    triage: SAMPLE_TRIAGE_RECORDS,
+  };
 }
 
 export function getLowBandwidthMode(): boolean {

@@ -3,7 +3,7 @@ import {
   TriageRecord, 
   LakeLouiseEvaluation 
 } from '../types/index.ts';
-import { CLINIC_SITES } from '../data/hgoData.ts';
+import { CLINIC_SITES, DUMMY_TRIAGE_TEMPLATES } from '../data/hgoData.ts';
 import { 
   saveTriageRecord, 
   syncAllTriageRecords 
@@ -21,7 +21,9 @@ import {
   Activity, 
   Heart, 
   Compass, 
-  Send
+  Send,
+  Download,
+  FileSpreadsheet
 } from 'lucide-react';
 
 interface TriageModuleProps {
@@ -83,6 +85,21 @@ export const TriageModule: React.FC<TriageModuleProps> = ({
   };
 
   const currentCategory = determineCategory(currentScore, spo2);
+
+  const handleLoadTemplate = (tpl: typeof DUMMY_TRIAGE_TEMPLATES[0]) => {
+    setPatientName(tpl.patientName);
+    setAge(tpl.age);
+    setGender(tpl.gender);
+    setVillage(tpl.village);
+    setClinicSiteId(tpl.clinicSiteId);
+    setChiefComplaint(tpl.chiefComplaint);
+    setLakeLouise(tpl.lakeLouise);
+    setSpo2(tpl.vitals.spo2);
+    setHeartRate(tpl.vitals.heartRate);
+    setBpSystolic(tpl.vitals.bpSystolic);
+    setBpDiastolic(tpl.vitals.bpDiastolic);
+    setTempCelsius(tpl.vitals.tempCelsius);
+  };
 
   const handleRunEvaluation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,6 +187,95 @@ export const TriageModule: React.FC<TriageModuleProps> = ({
     setChiefComplaint('');
   };
 
+  const [csvExported, setCsvExported] = useState(false);
+
+  const handleExportCSV = () => {
+    if (!records || records.length === 0) return;
+
+    const headers = [
+      'Record ID',
+      'Date & Time',
+      'Patient Name',
+      'Age',
+      'Gender',
+      'Village / Origin',
+      'Clinic Facility',
+      'Altitude (m)',
+      'Chief Complaint',
+      'Total Lake Louise AMS Score (0-15)',
+      'Headache Score (0-3)',
+      'GI Symptoms Score (0-3)',
+      'Fatigue Score (0-3)',
+      'Dizziness Score (0-3)',
+      'Functional Impairment (0-3)',
+      'SpO2 Oxygen (%)',
+      'Heart Rate (BPM)',
+      'BP Systolic',
+      'BP Diastolic',
+      'Body Temp (C)',
+      'Triage Severity Category',
+      'Emergency Evacuation Flag',
+      'Medical Protocol Directive',
+      'Sowa-Rigpa Diagnosis',
+      'Sowa-Rigpa Herbal Remedies',
+      'Nepali Instructions (नेपाली)',
+      'Tibetan Instructions (བོད་ཡིག)',
+      'Sync Status'
+    ];
+
+    const escapeCSV = (val: any) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const rows = records.map((r) => [
+      escapeCSV(r.id),
+      escapeCSV(r.timestamp),
+      escapeCSV(r.patientName),
+      escapeCSV(r.age),
+      escapeCSV(r.gender),
+      escapeCSV(r.village),
+      escapeCSV(CLINIC_SITES.find(c => c.id === r.clinicSiteId)?.name || r.clinicSiteId),
+      escapeCSV(r.altitudeMeters),
+      escapeCSV(r.chiefComplaint),
+      escapeCSV(r.totalAMSScore),
+      escapeCSV(r.lakeLouise?.headache ?? 0),
+      escapeCSV(r.lakeLouise?.gastrointestinal ?? 0),
+      escapeCSV(r.lakeLouise?.fatigueWeakness ?? 0),
+      escapeCSV(r.lakeLouise?.dizzinessLightheadedness ?? 0),
+      escapeCSV(r.lakeLouise?.functionalImpairment ?? 0),
+      escapeCSV(r.vitals?.spo2 ?? ''),
+      escapeCSV(r.vitals?.heartRate ?? ''),
+      escapeCSV(r.vitals?.bpSystolic ?? ''),
+      escapeCSV(r.vitals?.bpDiastolic ?? ''),
+      escapeCSV(r.vitals?.tempCelsius ?? ''),
+      escapeCSV(r.triageCategory),
+      escapeCSV(r.evacuationRequested ? 'YES' : 'NO'),
+      escapeCSV(r.allopathicRecommendations),
+      escapeCSV(r.sowaRigpaDiagnosis),
+      escapeCSV((r.sowaRigpaHerbalSuggestions || []).join('; ')),
+      escapeCSV(r.nepaliInstructions),
+      escapeCSV(r.tibetanInstructions),
+      escapeCSV(r.synced ? 'Synced' : 'Cached Locally')
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\r\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `hgo_triage_records_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setCsvExported(true);
+    setTimeout(() => setCsvExported(false), 3000);
+  };
+
   const handleSyncAll = () => {
     const { updated, syncedCount } = syncAllTriageRecords();
     setRecords(updated);
@@ -198,41 +304,94 @@ export const TriageModule: React.FC<TriageModuleProps> = ({
           </p>
         </div>
 
-        {/* Sync Status Banner */}
-        <div className="flex items-center gap-3 bg-stone-950 p-3 rounded-xl border border-stone-800">
-          <div className="text-right">
-            <div className="text-xs font-semibold text-stone-300">
-              {unsyncedRecords.length === 0 ? (
-                <span className="text-emerald-400 flex items-center gap-1 justify-end">
-                  <CheckCircle className="w-3.5 h-3.5" /> All Synced
-                </span>
-              ) : (
-                <span className="text-amber-400 flex items-center gap-1 justify-end">
-                  <WifiOff className="w-3.5 h-3.5" /> {unsyncedRecords.length} Stored Locally
-                </span>
-              )}
+        {/* Sync Status Banner & Offline Backup Action */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Export CSV Button */}
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 hover:border-emerald-500/50 text-xs font-semibold transition-all shadow-sm"
+            title="Export all triage records to a CSV spreadsheet file for off-grid reporting and backup"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+            <span>Export CSV</span>
+            <span className="text-[10px] text-stone-400 font-mono">({records.length})</span>
+          </button>
+
+          <div className="flex items-center gap-3 bg-stone-950 p-3 rounded-xl border border-stone-800">
+            <div className="text-right">
+              <div className="text-xs font-semibold text-stone-300">
+                {unsyncedRecords.length === 0 ? (
+                  <span className="text-emerald-400 flex items-center gap-1 justify-end">
+                    <CheckCircle className="w-3.5 h-3.5" /> All Synced
+                  </span>
+                ) : (
+                  <span className="text-amber-400 flex items-center gap-1 justify-end">
+                    <WifiOff className="w-3.5 h-3.5" /> {unsyncedRecords.length} Stored Locally
+                  </span>
+                )}
+              </div>
+              <div className="text-[10px] text-stone-400">Offline Caching Active</div>
             </div>
-            <div className="text-[10px] text-stone-400">Offline Caching Active</div>
+            {unsyncedRecords.length > 0 && (
+              <button
+                onClick={handleSyncAll}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition-colors shadow-sm"
+              >
+                <UploadCloud className="w-3.5 h-3.5" />
+                <span>Sync Cloud</span>
+              </button>
+            )}
           </div>
-          {unsyncedRecords.length > 0 && (
-            <button
-              onClick={handleSyncAll}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition-colors shadow-sm"
-            >
-              <UploadCloud className="w-3.5 h-3.5" />
-              <span>Sync Cloud</span>
-            </button>
-          )}
         </div>
       </div>
+
+      {csvExported && (
+        <div className="bg-emerald-950/70 border border-emerald-700/60 rounded-xl px-4 py-2.5 text-xs text-emerald-200 flex items-center justify-between animate-fade-in shadow-md">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <span>
+              <strong>CSV Backup Downloaded!</strong> {records.length} triage records exported with UTF-8 support for English, Nepali, and Tibetan scripts.
+            </span>
+          </div>
+          <span className="text-[10px] text-emerald-400 font-mono">Ready for offline reporting</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Col: Triage Intake Form (7 cols) */}
         <div className="lg:col-span-7 bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
-          <h2 className="text-base font-bold font-cinzel text-amber-200 flex items-center gap-2">
-            <Stethoscope className="w-4 h-4 text-amber-400" />
-            Patient Intake &amp; AMS Evaluation
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <h2 className="text-base font-bold font-cinzel text-amber-200 flex items-center gap-2">
+              <Stethoscope className="w-4 h-4 text-amber-400" />
+              Patient Intake &amp; AMS Evaluation
+            </h2>
+            <span className="text-[11px] text-amber-300/80 font-mono">
+              Dummy Data Ready
+            </span>
+          </div>
+
+          {/* Quick Dummy Case Selector */}
+          <div className="bg-stone-950/80 p-3 rounded-xl border border-stone-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-stone-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                Quick-Load Field Case Template (Dummy Data):
+              </span>
+              <span className="text-[10px] text-stone-500">Click to pre-fill</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {DUMMY_TRIAGE_TEMPLATES.map((tpl, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleLoadTemplate(tpl)}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-stone-900 hover:bg-amber-950/80 text-stone-300 hover:text-amber-200 border border-stone-800 hover:border-amber-600/50 transition-all text-left"
+                >
+                  {tpl.title}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <form onSubmit={handleRunEvaluation} className="space-y-5 text-xs">
             {/* Row 1: Demographics */}
@@ -578,9 +737,19 @@ export const TriageModule: React.FC<TriageModuleProps> = ({
 
           {/* List of Recent Intake Records */}
           <div className="bg-stone-900/60 border border-stone-800 rounded-2xl p-4 space-y-3">
-            <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider">
-              Recent Field Admissions ({records.length})
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider">
+                Recent Field Admissions ({records.length})
+              </h4>
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/60 transition-colors shadow-sm"
+                title="Download CSV spreadsheet backup of all triage admissions"
+              >
+                <Download className="w-3 h-3" />
+                <span>Export CSV</span>
+              </button>
+            </div>
 
             <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
               {records.map((rec) => (

@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   AlertCircle,
   UploadCloud,
-  RefreshCw
+  RefreshCw,
+  Database
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -27,6 +28,8 @@ interface NavbarProps {
   unsyncedCount: number;
   isNetworkOnline: boolean;
   onSyncTriage?: () => void;
+  onResetDummyData?: () => void;
+  dummyNotification?: string | null;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -39,6 +42,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   unsyncedCount,
   isNetworkOnline,
   onSyncTriage,
+  onResetDummyData,
+  dummyNotification,
 }) => {
   const [syncing, setSyncing] = useState(false);
 
@@ -102,6 +107,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Demo Data Loaded Notification Toast */}
+      {dummyNotification && (
+        <div className="bg-amber-600/90 border-b border-amber-500 text-white text-xs font-semibold px-4 py-1.5 flex items-center justify-center gap-2 shadow animate-fade-in">
+          <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+          <span>{dummyNotification}</span>
+        </div>
+      )}
 
       {/* Main Header Row */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
@@ -235,6 +248,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden md:inline">Web Widget Preview</span>
             <span className="md:hidden">Widget</span>
           </button>
+
+          {onResetDummyData && (
+            <button
+              onClick={onResetDummyData}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-stone-800 hover:bg-amber-950/80 text-amber-300 hover:text-amber-200 border border-stone-700 hover:border-amber-600/50 transition-colors shadow-sm"
+              title="Reset and reload fresh sample dataset (clinics, inventory, triage records)"
+            >
+              <Database className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden lg:inline">Reset Demo Data</span>
+              <span className="lg:hidden">Demo Data</span>
+            </button>
+          )}
         </div>
       </div>
 

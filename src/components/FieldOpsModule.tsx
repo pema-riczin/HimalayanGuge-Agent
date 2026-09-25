@@ -145,7 +145,9 @@ export const FieldOpsModule: React.FC<FieldOpsModuleProps> = ({
             <div className="text-[11px] text-stone-400">Restock Alerts</div>
           </div>
           <div className="text-center px-3">
-            <div className="text-2xl font-bold text-emerald-400 font-cinzel">4,620</div>
+            <div className="text-2xl font-bold text-emerald-400 font-cinzel">
+              {CLINIC_SITES.reduce((sum, c) => sum + c.populationServed, 0).toLocaleString()}
+            </div>
             <div className="text-[11px] text-stone-400">Villagers Covered</div>
           </div>
         </div>

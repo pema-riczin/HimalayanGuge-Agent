@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { generateImpactReportAI } from '../services/api.ts';
 import { GratitudeCertificate } from '../types/index.ts';
+import { DUMMY_CAMP_TEMPLATES, DUMMY_DONOR_PROFILES } from '../data/hgoData.ts';
 import { 
   HeartHandshake, 
   Sparkles, 
@@ -57,6 +58,22 @@ export const ImpactEngineModule: React.FC<ImpactEngineModuleProps> = ({
   const [certificateNumber, setCertificateNumber] = useState(
     `HGO-CERT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
   );
+
+  const handleLoadCampTemplate = (tpl: typeof DUMMY_CAMP_TEMPLATES[0]) => {
+    setCampLocation(tpl.location);
+    setDates(tpl.dates);
+    setPartner(tpl.partner);
+    setPatientsServed(tpl.patientsServed);
+    setDentalProcedures(tpl.dentalProcedures);
+    setCataractScreenings(tpl.cataractScreenings);
+    setRawNotes(tpl.rawNotes);
+  };
+
+  const handleLoadDonorProfile = (donor: typeof DUMMY_DONOR_PROFILES[0]) => {
+    setDonorName(donor.name);
+    setAmountUSD(donor.amount);
+    setImpactProject(donor.project);
+  };
 
   const handleGenerateReport = async () => {
     setGeneratingReport(true);
@@ -146,6 +163,29 @@ export const ImpactEngineModule: React.FC<ImpactEngineModuleProps> = ({
               </>
             )}
           </button>
+        </div>
+
+        {/* Quick Dummy Camp Template Selector */}
+        <div className="bg-stone-950/80 p-3 rounded-xl border border-stone-800 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-stone-300 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              Quick-Load Real-World Camp Scenario (Dummy Data):
+            </span>
+            <span className="text-[10px] text-stone-500">Click to populate tallies &amp; notes</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {DUMMY_CAMP_TEMPLATES.map((tpl, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleLoadCampTemplate(tpl)}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-stone-900 hover:bg-amber-950/80 text-stone-300 hover:text-amber-200 border border-stone-800 hover:border-amber-600/50 transition-all text-left"
+              >
+                {tpl.title}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Inputs */}
@@ -286,6 +326,29 @@ export const ImpactEngineModule: React.FC<ImpactEngineModuleProps> = ({
             <Printer className="w-3.5 h-3.5" />
             <span>Print Official Certificate</span>
           </button>
+        </div>
+
+        {/* Quick Dummy Donor Selector */}
+        <div className="bg-stone-950/80 p-3 rounded-xl border border-stone-800 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-stone-300 flex items-center gap-1.5">
+              <Award className="w-3.5 h-3.5 text-amber-400" />
+              Quick-Load Sample Benefactor Profile (Dummy Data):
+            </span>
+            <span className="text-[10px] text-stone-500">Click to preview custom certificate</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {DUMMY_DONOR_PROFILES.map((donor, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleLoadDonorProfile(donor)}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-stone-900 hover:bg-amber-950/80 text-stone-300 hover:text-amber-200 border border-stone-800 hover:border-amber-600/50 transition-all text-left"
+              >
+                {donor.name.split(' ')[0]} &bull; ${donor.amount.toLocaleString()} ({donor.project.split(' ')[0]})
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Inputs for Certificate */}

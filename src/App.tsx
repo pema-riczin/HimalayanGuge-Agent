@@ -12,6 +12,7 @@ import {
   getStoredInventory, 
   getStoredTriageRecords, 
   syncAllTriageRecords,
+  resetToDummyData,
   getLowBandwidthMode, 
   setLowBandwidthMode as saveLowBandwidthMode 
 } from './services/storage.ts';
@@ -81,6 +82,16 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const [dummyNotification, setDummyNotification] = useState<string | null>(null);
+
+  const handleResetDummyData = () => {
+    const { inventory: newInv, triage: newTriage } = resetToDummyData();
+    setInventory(newInv);
+    setTriageRecords(newTriage);
+    setDummyNotification('Demo Dataset Loaded: 6 clinics, 17 inventory lines & 6 triage records refreshed');
+    setTimeout(() => setDummyNotification(null), 3500);
+  };
+
   const unsyncedCount = triageRecords.filter((r) => !r.synced).length;
 
   return (
@@ -96,6 +107,8 @@ export default function App() {
         unsyncedCount={unsyncedCount}
         isNetworkOnline={isNetworkOnline}
         onSyncTriage={handleSyncTriage}
+        onResetDummyData={handleResetDummyData}
+        dummyNotification={dummyNotification}
       />
 
       {/* Main Tab Content */}

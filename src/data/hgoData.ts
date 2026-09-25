@@ -56,6 +56,34 @@ export const CLINIC_SITES: ClinicSite[] = [
     description: 'Provides primary healthcare and winter health packs for 45 Buddhist nuns (Anis) and neighboring Tamang & Sherpa subsistence farming hamlets.',
     coordinates: '27.8105° N, 86.1523° E',
     distanceFromJomsom: 'Central-Eastern Himalayas (6 hrs from Charikot by foot/jeep)'
+  },
+  {
+    id: 'chhoser',
+    name: 'Chhoser High Cave Hermitage Post',
+    nameTibetan: 'ཆོས་ཤར་བྲག་ཕུག་སྨན་བཅོས་ས་ཚིགས།',
+    location: 'Chhoser Sky Caves, Tibetan Frontier',
+    altitudeMeters: 3920,
+    coordinator: 'Amchi Nyima & Field Paramedic Pasang',
+    contactChannel: 'Satellite InReach Satellite Node 2',
+    populationServed: 630,
+    status: 'restock_urgently',
+    description: 'Ultra-high altitude post supporting cave retreat hermits and border nomadic pastoralists during harsh blizzards.',
+    coordinates: '29.2311° N, 83.9840° E',
+    distanceFromJomsom: '16 hours by high-clearance 4WD'
+  },
+  {
+    id: 'kagbeni',
+    name: 'Kagbeni Gateway Acclimatization Station',
+    nameTibetan: 'སྐག་བེན་ནི་ལ་དུག་བརྟག་དཔྱད་ཁང་།',
+    location: 'Kagbeni, Lower Mustang Entry',
+    altitudeMeters: 2800,
+    coordinator: 'Dr. Rajesh Shrestha',
+    contactChannel: 'Ncell Fiber Broadband / Landline',
+    populationServed: 950,
+    status: 'operational',
+    description: 'First mandatory medical checkpoint where incoming international volunteers and porters undergo baseline Lake Louise AMS screening.',
+    coordinates: '28.8353° N, 83.7820° E',
+    distanceFromJomsom: '45 mins by jeep from Jomsom Airport'
   }
 ];
 
@@ -121,6 +149,18 @@ export const INITIAL_INVENTORY: InventoryItem[] = [
     criticalForWinter: false,
     notes: 'One forceps hinge worn from heavy field use.'
   },
+  {
+    id: 'inv-5b',
+    clinicId: 'tsonup',
+    name: 'Pediatric Amoxicillin Suspension 125mg/5ml',
+    category: 'antibiotic',
+    quantity: 12,
+    minThreshold: 25,
+    unit: 'bottles',
+    expiryDate: '2027-01',
+    criticalForWinter: true,
+    notes: 'High incidence of winter bronchiolitis in nomad toddlers.'
+  },
 
   // Tsarang Health Post
   {
@@ -183,6 +223,18 @@ export const INITIAL_INVENTORY: InventoryItem[] = [
     criticalForWinter: false,
     notes: 'Calms agitated heart rLung, improves restful sleep in cold dry winds.'
   },
+  {
+    id: 'inv-10b',
+    clinicId: 'tsarang',
+    name: 'Glass Ionomer Dental Filling Kit (Fuji IX)',
+    category: 'dental',
+    quantity: 6,
+    minThreshold: 10,
+    unit: 'kits',
+    expiryDate: '2027-12',
+    criticalForWinter: false,
+    notes: 'Atraumatic restorative treatment in children without drill requirements.'
+  },
 
   // Lo Manthang Clinic
   {
@@ -209,6 +261,30 @@ export const INITIAL_INVENTORY: InventoryItem[] = [
     criticalForWinter: true,
     notes: 'Battery compartments need lithium AAA cells (cold resistance).'
   },
+  {
+    id: 'inv-12b',
+    clinicId: 'lomanthang',
+    name: 'Nifedipine 20mg Sustained Release',
+    category: 'altitude_emergency',
+    quantity: 60,
+    minThreshold: 40,
+    unit: 'tablets',
+    expiryDate: '2027-08',
+    criticalForWinter: true,
+    notes: 'Pulmonary vasodilator for suspected High Altitude Pulmonary Edema (HAPE).'
+  },
+  {
+    id: 'inv-12c',
+    clinicId: 'lomanthang',
+    name: 'Tshel-mar-25 (Bile-Liver Sorig Formula)',
+    category: 'sowa_rigpa',
+    quantity: 32,
+    minThreshold: 20,
+    unit: 'bottles',
+    expiryDate: '2028-04',
+    criticalForWinter: false,
+    notes: 'For hepatic heat, yellow eye sclera, and bilious headaches.'
+  },
 
   // Bigu Nunnery
   {
@@ -234,6 +310,58 @@ export const INITIAL_INVENTORY: InventoryItem[] = [
     expiryDate: '2028-01',
     criticalForWinter: false,
     notes: 'Enhances metabolic heat (Me-drod) during winter fasting retreats.'
+  },
+  {
+    id: 'inv-14b',
+    clinicId: 'bigu',
+    name: 'Diclofenac Topical Pain Gel (1%)',
+    category: 'analgesic',
+    quantity: 42,
+    minThreshold: 30,
+    unit: 'tubes',
+    expiryDate: '2027-06',
+    criticalForWinter: true,
+    notes: 'For nun knee osteoarthritis caused by stone floor prostrations.'
+  },
+
+  // Chhoser High Cave Post
+  {
+    id: 'inv-15',
+    clinicId: 'chhoser',
+    name: 'Gamow Bag Portable Hyperbaric Chamber',
+    category: 'altitude_emergency',
+    quantity: 1,
+    minThreshold: 2,
+    unit: 'unit',
+    expiryDate: '2030-01',
+    criticalForWinter: true,
+    notes: 'Vital lifesaving chamber when blizzard prevents helicopter extraction.'
+  },
+  {
+    id: 'inv-16',
+    clinicId: 'chhoser',
+    name: 'Thermal Foil Space Blankets (Heavy Duty)',
+    category: 'altitude_emergency',
+    quantity: 28,
+    minThreshold: 50,
+    unit: 'blankets',
+    expiryDate: '2035-01',
+    criticalForWinter: true,
+    notes: 'Hypothermia prevention in nomadic yak caravans.'
+  },
+
+  // Kagbeni Acclimatization Gateway
+  {
+    id: 'inv-17',
+    clinicId: 'kagbeni',
+    name: 'UV Cat 4 Glacier Glasses (Protective)',
+    category: 'ophthalmic',
+    quantity: 85,
+    minThreshold: 100,
+    unit: 'pairs',
+    expiryDate: '2035-01',
+    criticalForWinter: false,
+    notes: 'Dispensed to ascending porters and local children.'
   }
 ];
 
@@ -529,6 +657,227 @@ export const SAMPLE_TRIAGE_RECORDS: TriageRecord[] = [
     nepaliInstructions: 'घुँडाको जोर्नी खिइएको दुखाइ हो। बिहान घाममा बस्नुहोस्, तातो तोरीको तेलले मालिस गर्नुहोस्, र आवश्यक परे यो चक्की खानुहोस्।',
     tibetanInstructions: 'པུས་མོའི་ཚིགས་ལ་གྲུམ་བུའི་ནད་ཞུགས་འདུག ཉི་མར་བསྲོ་བ་དང་ཏིལ་མར་དྲོན་མོས་བྱུག་དགོས།',
     synced: false
+  },
+  {
+    id: 'TR-2026-084',
+    timestamp: '2026-09-25T10:15:00Z',
+    patientName: 'Kunga Dorje',
+    age: 46,
+    gender: 'Male',
+    village: 'Lo Manthang Northern Outskirts',
+    clinicSiteId: 'lomanthang',
+    altitudeMeters: 3840,
+    chiefComplaint: 'Extreme bilateral eye burning, excessive tearing, photophobia after 8 hours herding yaks across snowfields without sunglasses. Corneal punctate fluorescein uptake.',
+    lakeLouise: {
+      headache: 1,
+      gastrointestinal: 0,
+      fatigueWeakness: 1,
+      dizzinessLightheadedness: 0,
+      functionalImpairment: 2
+    },
+    totalAMSScore: 4,
+    vitals: {
+      spo2: 89,
+      heartRate: 78,
+      bpSystolic: 122,
+      bpDiastolic: 78,
+      respRate: 16,
+      tempCelsius: 36.9
+    },
+    triageCategory: 'YELLOW',
+    allopathicRecommendations: 'Severe High-Altitude Photokeratitis (Snow Blindness). Apply antibiotic ophthalmic ointment (Erythromycin or Ciprofloxacin 0.3%), oral Ibuprofen 400mg, patch eye for 24h, issue Cat 4 UV glacier goggles.',
+    sowaRigpaDiagnosis: 'Violent Bile and Wind heat (mKhris-rlung) searing the subtle channels of the eye organ (*Mig-gi dbang-po*).',
+    sowaRigpaHerbalSuggestions: ['Gurkum-13', 'Sterile cold rosewater compress', 'Avoid looking into fire or direct sunlight for 3 days'],
+    nepaliInstructions: 'हिउँको कडा घामले आँखामा घाउ भएको छ (स्नो ब्लाइन्डनेस)। आँखामा यो मलम हाल्नुहोस्, कालो चश्मा लगाउनुहोस् र घाममा ननिस्कनुहोस्।',
+    tibetanInstructions: 'གངས་འོད་ཀྱིས་མིག་ལ་སྐྱོན་ཤོར་འདུག མིག་སྨན་འདི་བརྒྱབ་ནས་ཉི་ཤེལ་ནག་པོ་རྒྱག་དགོས།',
+    synced: true
+  },
+  {
+    id: 'TR-2026-085',
+    timestamp: '2026-09-25T11:20:00Z',
+    patientName: 'Dolma Tenzin',
+    age: 72,
+    gender: 'Female',
+    village: 'Tsonup Nomad Camp',
+    clinicSiteId: 'tsonup',
+    altitudeMeters: 3850,
+    chiefComplaint: 'Severe sleeplessness, heart racing at night, cold chills in lower extremities, weeping easily when wind howls.',
+    lakeLouise: {
+      headache: 1,
+      gastrointestinal: 0,
+      fatigueWeakness: 1,
+      dizzinessLightheadedness: 0,
+      functionalImpairment: 0
+    },
+    totalAMSScore: 2,
+    vitals: {
+      spo2: 88,
+      heartRate: 88,
+      bpSystolic: 138,
+      bpDiastolic: 86,
+      respRate: 18,
+      tempCelsius: 36.5
+    },
+    triageCategory: 'GREEN',
+    allopathicRecommendations: 'Altitude-induced sleep fragmentation and mild chronic hypertension. Maintain hydration. Continue low-dose Amlodipine 5mg. Avoid caffeine in evening.',
+    sowaRigpaDiagnosis: 'Classic sNying-rLung (Heart-Wind) disturbance with cold exhaustion from sub-zero autumn drafts.',
+    sowaRigpaHerbalSuggestions: ['Agar-35 (crushed in hot butter milk)', 'Semde pills', 'Gentle warm nutmeg-infused sesame oil rub on chest & crown'],
+    nepaliInstructions: 'चिसो हावा र उचाइले मुटुको धड्कन बढेको र निद्रा नपरेको हो। बेलुका तातो पानी वा झोल खानुहोस्, यो आयुर्वेदिक चक्की खानुहोस् र न्यानो भएर सुत्नुहोस्।',
+    tibetanInstructions: 'སྙིང་རླུང་ལངས་ནས་གཉིད་མི་ཁུག་པ་རེད། ཨ་གར་སོ་ལྔ་དང་སེམས་བདེ་ཆུ་ཚན་དང་མཉམ་དུ་འཐུང་དགོས།',
+    synced: false
+  },
+  {
+    id: 'TR-2026-086',
+    timestamp: '2026-09-25T11:45:00Z',
+    patientName: 'Dawa Norbu (Trekking Porter)',
+    age: 27,
+    gender: 'Male',
+    village: 'Kagbeni Ascent Zone',
+    clinicSiteId: 'kagbeni',
+    altitudeMeters: 2800,
+    chiefComplaint: 'Carried 35kg load rapidly from Pokhara/Jomsom. Productive cough with pink frothy sputum, severe breathlessness at rest, SpO2 68%, bilateral pulmonary crackles.',
+    lakeLouise: {
+      headache: 3,
+      gastrointestinal: 2,
+      fatigueWeakness: 3,
+      dizzinessLightheadedness: 2,
+      functionalImpairment: 3
+    },
+    totalAMSScore: 13,
+    vitals: {
+      spo2: 68,
+      heartRate: 124,
+      bpSystolic: 152,
+      bpDiastolic: 98,
+      respRate: 34,
+      tempCelsius: 37.4
+    },
+    triageCategory: 'RED',
+    allopathicRecommendations: 'CRITICAL HIGH-ALTITUDE PULMONARY EDEMA (HAPE). Immediate high-flow oxygen (6-8 L/min via non-rebreather mask). Administer Nifedipine 20mg SR and Dexamethasone 8mg stat. Keep warm and evacuate downhill immediately to Pokhara/Jomsom hospital.',
+    sowaRigpaDiagnosis: 'Catastrophic Glo-ba Chu-shor (Fluid inundation of lungs) provoked by extreme physical overexertion under cold hypoxia.',
+    sowaRigpaHerbalSuggestions: ['Immediate emergency evacuation paramount; do not delay for traditional compounds'],
+    nepaliInstructions: 'फोक्सोमा पानी जमेको अत्यन्त गम्भीर लेक लागेको अवस्था (HAPE)! तुरुन्तै ८ लिटर अक्सिजन लगाउनुहोस् र तुरुन्तै तल जोमसोम अस्पताल लैजानुहोस्।',
+    tibetanInstructions: 'གློ་བར་ཆུ་བསགས་པའི་ལ་དུག་ཚབས་ཆེན་ཕོག་འདུག མྱུར་དུ་དབུགས་རླུང་སྦྱིན་ཏེ་མར་བབས་དགོས།',
+    synced: true,
+    evacuationRequested: true
+  }
+];
+
+export const DUMMY_TRIAGE_TEMPLATES = [
+  {
+    title: 'Severe HAPE/HACE Ascent (RED - 3,850m)',
+    patientName: 'Tsering Gyalpo',
+    age: 34,
+    gender: 'Male' as const,
+    village: 'Chhoser Nomad Camp',
+    clinicSiteId: 'tsonup',
+    chiefComplaint: 'Rapid ascent on motorcycle. Severe vomiting, ataxic staggering gait, confusion, pink sputum, SpO2 71%.',
+    lakeLouise: { headache: 3, gastrointestinal: 2, fatigueWeakness: 3, dizzinessLightheadedness: 3, functionalImpairment: 3 },
+    vitals: { spo2: 71, heartRate: 118, bpSystolic: 145, bpDiastolic: 95, tempCelsius: 36.6 }
+  },
+  {
+    title: 'Acute Dental Abscess & Facial Swelling (YELLOW - 3,560m)',
+    patientName: 'Pema Wangmo',
+    age: 58,
+    gender: 'Female' as const,
+    village: 'Ghemi Village',
+    clinicSiteId: 'tsarang',
+    chiefComplaint: 'Throbbing lower right molar abscess for 5 days. Unable to chew solid food. Local submandibular lymphadenitis.',
+    lakeLouise: { headache: 1, gastrointestinal: 0, fatigueWeakness: 1, dizzinessLightheadedness: 0, functionalImpairment: 1 },
+    vitals: { spo2: 91, heartRate: 84, bpSystolic: 128, bpDiastolic: 82, tempCelsius: 37.8 }
+  },
+  {
+    title: 'Snow Blindness / UV Keratitis (YELLOW - 3,840m)',
+    patientName: 'Kunga Dorje',
+    age: 46,
+    gender: 'Male' as const,
+    village: 'Lo Manthang Outskirts',
+    clinicSiteId: 'lomanthang',
+    chiefComplaint: 'Severe photophobia, ocular burning and foreign-body sensation after 8 hours herding yaks across snow fields without UV glasses.',
+    lakeLouise: { headache: 1, gastrointestinal: 0, fatigueWeakness: 1, dizzinessLightheadedness: 0, functionalImpairment: 2 },
+    vitals: { spo2: 89, heartRate: 78, bpSystolic: 122, bpDiastolic: 78, tempCelsius: 36.9 }
+  },
+  {
+    title: 'Elderly Nun Knee Osteoarthritis (GREEN - 2,500m)',
+    patientName: 'Ani Yangchen',
+    age: 67,
+    gender: 'Female' as const,
+    village: 'Bigu Nunnery',
+    clinicSiteId: 'bigu',
+    chiefComplaint: 'Bilateral knee stiffness and crepitus aggravated by cold temple flagstones during Nyungne fasting retreat.',
+    lakeLouise: { headache: 0, gastrointestinal: 0, fatigueWeakness: 1, dizzinessLightheadedness: 0, functionalImpairment: 1 },
+    vitals: { spo2: 95, heartRate: 72, bpSystolic: 132, bpDiastolic: 84, tempCelsius: 36.7 }
+  },
+  {
+    title: 'Sowa-Rigpa Heart rLung Insomnia (GREEN - 3,850m)',
+    patientName: 'Dolma Tenzin',
+    age: 72,
+    gender: 'Female' as const,
+    village: 'Tsonup Plateau',
+    clinicSiteId: 'tsonup',
+    chiefComplaint: 'Night palpitations, inability to sleep, mental restlessness provoked by freezing north wind drafts.',
+    lakeLouise: { headache: 1, gastrointestinal: 0, fatigueWeakness: 1, dizzinessLightheadedness: 0, functionalImpairment: 0 },
+    vitals: { spo2: 88, heartRate: 88, bpSystolic: 138, bpDiastolic: 86, tempCelsius: 36.5 }
+  }
+];
+
+export const DUMMY_CAMP_TEMPLATES = [
+  {
+    title: 'Upper Mustang 4-Day Dental Camp (337 Patients)',
+    location: 'Upper Mustang (Tsarang & Tsonup Clinics)',
+    dates: 'Autumn Expedition 2026',
+    partner: 'JJoy Foundation & Rotary International',
+    patientsServed: 337,
+    dentalProcedures: 142,
+    cataractScreenings: 89,
+    rawNotes: '337 patients served over 4 days across Tsarang and Tsonup. 142 dental extractions and fillings performed by volunteer dentists. 89 cataract screenings; 112 pairs of Cat 4 UV sunglasses dispensed to elderly yak herders. Severe osteoarthritis prevalent in elders. Local Amchis provided integrative Sowa-Rigpa Agar-35 treatments for high-altitude cold wind rLung.'
+  },
+  {
+    title: 'Bigu Nunnery & Dolakha Eye Camp (195 Patients)',
+    location: 'Bigu Nunnery & Surrounding Tamang Hamlets, Dolakha',
+    dates: 'Winter Pre-Freeze Medical Mission 2026',
+    partner: 'Rotary Club of Kathmandu & Himalayan Guge Org',
+    patientsServed: 195,
+    dentalProcedures: 48,
+    cataractScreenings: 134,
+    rawNotes: '195 Buddhist nuns and rural subsistence farmers screened. 134 eye evaluations completed with 68 reading glasses and 42 antibiotic eye ointments distributed. 48 dental fillings and preventative scaling sessions completed in the nunnery courtyard clinic. 18 nuns treated for chronic knee osteoarthritis with supportive braces and warming moxibustion.'
+  },
+  {
+    title: 'Nomadic Border Plateau Sorig Camp (260 Patients)',
+    location: 'Chhoser Sky Caves & Northern Border Ridge (3,900m)',
+    dates: 'High Plateau Summer Mission',
+    partner: 'JJoy Foundation & Lo Amchi Association',
+    patientsServed: 260,
+    dentalProcedures: 86,
+    cataractScreenings: 72,
+    rawNotes: '260 semi-nomadic pastoralists and family units treated at high altitude. 86 emergency tooth extractions relieving chronic infection. 72 ophthalmic checkups. Distributed 150 thermal blankets and pediatric winter vitamins. Amchi Karma Tenzin led pulse diagnostics for 140 villagers, dispensing traditional Tshel-mar-25 and Semde formulas.'
+  }
+];
+
+export const DUMMY_DONOR_PROFILES = [
+  {
+    name: 'JJoy Foundation Global Health Fund',
+    amount: 12500,
+    project: 'Tsarang Dental Clinic & High-Altitude Restock Expedition',
+    notes: 'Full sponsorship of portable dental delivery unit, autoclave, and 6 months of anesthetic.'
+  },
+  {
+    name: 'Rotary International District 3292',
+    amount: 8400,
+    project: 'Mobile High-Altitude Oxygen & Lake Louise Triage Stations',
+    notes: 'Providing 12 lightweight composite O2 cylinders and emergency Gamow hyperbaric bag.'
+  },
+  {
+    name: 'Dr. Elizabeth Vance, DDS (Volunteer Alumna)',
+    amount: 2500,
+    project: 'Bigu Nunnery Living Quarters Solar Wall & Thermal Insulation',
+    notes: 'In honor of the dedicated Nyungne nuns of Tashi Chime Gatsal.'
+  },
+  {
+    name: 'Karma & Dolma Himalayan Cultural Trust',
+    amount: 1500,
+    project: 'Tsarang Gompa 14th-Century Sowa-Rigpa Xylograph Digitization',
+    notes: 'Archiving rare Tibetan botanical block-prints and medical tantra folios.'
   }
 ];
 
