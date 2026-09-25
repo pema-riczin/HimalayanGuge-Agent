@@ -1,0 +1,6 @@
+{
+  "name": "HGO-Agent - Himalayan Guge Organization Co-Pilot",
+  "description": "AI co-pilot for Himalayan field operations, Sowa-Rigpa cultural preservation, and donor impact amplification.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
