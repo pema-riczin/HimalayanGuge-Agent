@@ -458,6 +458,7 @@ Please provide a structured, practical briefing:
         answer: response.text || 'No route data generated.',
         source: 'gemini-3.5-flash (Google Maps Grounded)',
         groundingMetadata,
+        timestamp: new Date().toISOString(),
       });
     } catch (err: any) {
       console.warn('Gemini 3.5 Flash Google Maps call failed, falling back to expedition atlas:', err?.message);
@@ -469,6 +470,7 @@ Please provide a structured, practical briefing:
     answer: fallback,
     source: 'hgo-expedition-atlas (Offline Grounded Fallback)',
     groundingMetadata: null,
+    timestamp: new Date().toISOString(),
   });
 });
 

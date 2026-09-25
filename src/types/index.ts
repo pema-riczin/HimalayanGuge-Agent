@@ -159,4 +159,5 @@ export interface MapsGroundingResponse {
   answer: string;
   source: string;
   groundingMetadata?: any;
+  timestamp?: string;
 }
