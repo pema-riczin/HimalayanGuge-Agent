@@ -26,7 +26,8 @@ import {
   RefreshCw,
   Clock,
   ShieldCheck,
-  Package
+  Package,
+  ExternalLink
 } from 'lucide-react';
 
 interface FieldOpsModuleProps {
@@ -221,6 +222,20 @@ export const FieldOpsModule: React.FC<FieldOpsModuleProps> = ({
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-stone-400 shrink-0" />
                     <span className="text-stone-400">{clinic.distanceFromJomsom}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-stone-800/50">
+                    <span className="font-mono text-[10px] text-stone-400">GPS: {clinic.coordinates}</span>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${clinic.name} ${clinic.location} Nepal`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                      title="View on Google Maps"
+                    >
+                      <span>Maps</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
                   </div>
 
                   <button

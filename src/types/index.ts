@@ -1,4 +1,4 @@
-export type AgentRole = 'general' | 'field_ops' | 'cultural_codex' | 'impact_engine';
+export type AgentRole = 'general' | 'field_ops' | 'cultural_codex' | 'impact_engine' | 'route_intel';
 
 export interface ChatMessage {
   id: string;
@@ -6,8 +6,9 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
   role?: AgentRole;
-  source?: 'gemini-3.8-flash' | 'hgo-knowledge-base' | 'system';
+  source?: 'gemini-3.8-flash' | 'gemini-3.5-flash (Google Maps Grounded)' | 'hgo-knowledge-base' | 'system';
   suggestedActions?: string[];
+  groundingMetadata?: any;
 }
 
 export interface ClinicSite {
@@ -146,4 +147,16 @@ export interface GratitudeCertificate {
   fieldDirector: string;
   currency: string;
   notes: string;
+}
+
+export interface MapsGroundingPlace {
+  title?: string;
+  uri?: string;
+  address?: string;
+}
+
+export interface MapsGroundingResponse {
+  answer: string;
+  source: string;
+  groundingMetadata?: any;
 }

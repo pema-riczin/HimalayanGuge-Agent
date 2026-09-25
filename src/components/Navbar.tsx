@@ -15,7 +15,8 @@ import {
   AlertCircle,
   UploadCloud,
   RefreshCw,
-  Database
+  Database,
+  MapPin
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -53,6 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'triage', label: 'AMS & Health Triage', icon: Stethoscope, badge: unsyncedCount > 0 ? `${unsyncedCount} un-synced` : undefined },
     { id: 'cultural_codex', label: 'Sowa-Rigpa Codex', icon: BookOpen },
     { id: 'heritage', label: 'Monasteries & Nunneries', icon: Mountain },
+    { id: 'maps_grounding', label: 'Expedition Maps AI', icon: MapPin, badge: 'Maps Grounded' },
     { id: 'impact', label: 'Impact & Donors', icon: HeartHandshake },
   ];
 

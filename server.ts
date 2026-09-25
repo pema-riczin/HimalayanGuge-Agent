@@ -53,13 +53,17 @@ app.get('/api/status', (_req: Request, res: Response) => {
   res.json({
     status: 'online',
     hasApiKey: !!(apiKey && apiKey !== 'MY_GEMINI_API_KEY'),
-    model: 'gemini-3.8-flash',
+    models: {
+      default: 'gemini-3.8-flash',
+      mapsGrounding: 'gemini-3.5-flash',
+    },
+    tools: ['googleMaps'],
     organization: 'Himalayan Guge Organization (HGO)',
     coverage: ['Upper Mustang', 'Lo Manthang', 'Tsarang', 'Tsonup', 'Bigu Nunnery', 'Dolpo'],
   });
 });
 
-// Unified Agent Chat Endpoint
+// Unified Agent Chat Endpoint (supports Google Maps Grounding via gemini-3.5-flash)
 app.post('/api/agent/chat', async (req: Request, res: Response) => {
   const { message, role = 'general', context = {} } = req.body;
 
@@ -67,9 +71,13 @@ app.post('/api/agent/chat', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Message is required' });
   }
 
+  const isMapsQuery = context?.useMapsGrounding || 
+    role === 'route_intel' || 
+    /\b(map|route|distance|hospital|evac|helipad|airstrip|jomsom|pokhara|flight|highway|pass|trail|transit|coordinates|road condition)\b/i.test(message);
+
   let rolePrompt = '';
-  if (role === 'field_ops') {
-    rolePrompt = 'You are acting as the HGO Field Operations & Medical Logistics Coordinator. Focus on high-altitude logistics, supply alerts, Lake Louise triage, cold-weather protocols, and volunteer safety.';
+  if (role === 'field_ops' || role === 'route_intel') {
+    rolePrompt = 'You are acting as the HGO Field Operations & Medical Logistics Coordinator. Focus on high-altitude logistics, supply alerts, Lake Louise triage, cold-weather protocols, geographic routing, and volunteer safety.';
   } else if (role === 'cultural_codex') {
     rolePrompt = 'You are acting as the HGO Sowa-Rigpa Scholar & Heritage Archivist. Focus on Sowa-Rigpa (Traditional Himalayan Medicine), herbal formulations, the three humors (rLung, mKhris-pa, Bad-kan), monastery history (Bigu Nunnery, Tsarang Gompa), and tri-lingual translation.';
   } else if (role === 'impact_engine') {
@@ -79,6 +87,31 @@ app.post('/api/agent/chat', async (req: Request, res: Response) => {
   const prompt = `${rolePrompt}\n\nContext: ${JSON.stringify(context)}\n\nUser Question/Request:\n${message}`;
 
   if (ai) {
+    // If maps grounding is requested or detected, use gemini-3.5-flash with googleMaps tool
+    if (isMapsQuery) {
+      try {
+        const mapsResponse = await ai.models.generateContent({
+          model: 'gemini-3.5-flash',
+          contents: prompt,
+          config: {
+            systemInstruction: HGO_SYSTEM_INSTRUCTION,
+            temperature: 0.5,
+            tools: [{ googleMaps: {} }],
+          },
+        });
+
+        const candidate = mapsResponse.candidates?.[0];
+        return res.json({
+          reply: mapsResponse.text || 'No response generated.',
+          source: 'gemini-3.5-flash (Google Maps Grounded)',
+          groundingMetadata: candidate?.groundingMetadata,
+          role,
+        });
+      } catch (err: any) {
+        console.warn('Gemini 3.5 Flash with Google Maps tool failed, falling back to gemini-3.8-flash:', err?.message);
+      }
+    }
+
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
@@ -370,8 +403,133 @@ Key metrics tracked in our real-time database:
   return `### 🏔️ HGO-Agent Co-Pilot Active
 I am your digital bridge for the Himalayan Guge Organization.
 - **Field Ops:** Ask about medical inventory alerts, Lake Louise triage, cold-weather protocols, or volunteer onboarding for Upper Mustang.
+- **Expedition Navigator:** Google Maps grounded routing, travel times, helipads, and referral hospitals (powered by gemini-3.5-flash).
 - **Cultural Codex:** Explore Sowa-Rigpa herbal remedies, the 3 humors, or request instant translations in English, Nepali (नेपाली), and Tibetan (བོད་ཡིག).
 - **Impact Engine:** Paste raw field notes to automatically generate structured donor briefs and gratitude receipts for our partners like JJoy Foundation and Rotary.`;
+}
+
+// Dedicated Google Maps Grounded Expedition Route Intelligence Endpoint
+app.post('/api/agent/maps-expedition', async (req: Request, res: Response) => {
+  const { 
+    query, 
+    expeditionOrigin = 'Kathmandu', 
+    destination = 'Upper Mustang (Lo Manthang / Tsarang)', 
+    category = 'route' 
+  } = req.body;
+
+  if (!query) {
+    return res.status(400).json({ error: 'Query is required' });
+  }
+
+  const mapsPrompt = `You are the Himalayan Expedition Logistics Navigator and Emergency Evacuation Specialist for the Himalayan Guge Organization (HGO).
+Use Google Maps data to provide accurate, grounded geographic information, transit distances, road/trail conditions, mountain pass elevations, hospital coordinates, and helipad landing zones.
+
+Context:
+- Expedition Origin: ${expeditionOrigin}
+- Target Destination: ${destination}
+- Logistics Focus: ${category}
+- Key Operational Areas: Upper Mustang (Jomsom Airport 2,743m, Kagbeni 2,800m, Tsarang 3,560m, Lo Manthang 3,840m, Tsonup 3,850m, Chhoser sky caves), Dolakha District (Charikot, Singati, Bigu Nunnery / Tashi Chime Gatsal 2,500m), Dolpo, and Pokhara / Kathmandu tertiary emergency referral centers.
+
+User Query:
+${query}
+
+Please provide a structured, practical briefing:
+1. Grounded Waypoints & Route Trajectory (distances, elevations, surface conditions, estimated travel hours)
+2. Nearest Medical Referral Facilities, Helipads, or STOL Airstrips with exact facility names
+3. High-Altitude Hazards & River Crossings (Kali Gandaki flash floods, winter snow blockage, rockfall zones)
+4. Logistics & Acclimatization Guidance for volunteer medical teams and 4WD drivers.`;
+
+  if (ai) {
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: mapsPrompt,
+        config: {
+          systemInstruction: HGO_SYSTEM_INSTRUCTION,
+          temperature: 0.5,
+          tools: [{ googleMaps: {} }],
+        },
+      });
+
+      const candidate = response.candidates?.[0];
+      const groundingMetadata = candidate?.groundingMetadata;
+
+      return res.json({
+        answer: response.text || 'No route data generated.',
+        source: 'gemini-3.5-flash (Google Maps Grounded)',
+        groundingMetadata,
+      });
+    } catch (err: any) {
+      console.warn('Gemini 3.5 Flash Google Maps call failed, falling back to expedition atlas:', err?.message);
+    }
+  }
+
+  const fallback = generateMapsRouteFallback(query, expeditionOrigin, destination);
+  return res.json({
+    answer: fallback,
+    source: 'hgo-expedition-atlas (Offline Grounded Fallback)',
+    groundingMetadata: null,
+  });
+});
+
+// Helper High-Altitude Maps Route Fallback
+function generateMapsRouteFallback(query: string, origin: string, destination: string): string {
+  const q = query.toLowerCase();
+
+  if (q.includes('hospital') || q.includes('evac') || q.includes('emergency') || q.includes('helipad')) {
+    return `### 🚁 Grounded Emergency Evacuation & Hospital Coordinates
+
+#### 1. Upper Mustang Emergency Evacuation Hubs
+- **Lo Manthang Helipad (3,840m):** Coordinates: 29.1822° N, 83.9567° E (Flat meadow south of the walled city / Nepal Army outpost).
+- **Tsarang Emergency Landing Zone (3,560m):** Coordinates: 29.0558° N, 83.9261° E (Terraced plateau adjacent to Tsarang Health Post).
+- **Jomsom Airport (JMO / 2,743m):** Runway 06/24 (739m asphalt). Primary weather-dependent STOL air evacuation gateway to Pokhara (20 min flight).
+
+#### 2. Tertiary Emergency Referral Centers
+- **Pokhara (Fastest Flight/Heli Referral):**
+  * **Western Regional Hospital (Pokhara Academy of Health Sciences):** Ramghat, Pokhara. Level-1 regional trauma center, blood bank, ICU.
+  * **Manipal Teaching Hospital:** Phulbari, Pokhara (Tel: +977-61-526416). Multi-specialty ICU, neurosurgery, CT/MRI.
+  * **Fishtail Hospital & Research Center:** Gairapatan, Pokhara. Emergency ICU and private air ambulance reception.
+- **Kathmandu (Tertiary Altitude & Trauma Referral):**
+  * **CIWEC Hospital and Travel Medicine Center:** Lazimpat, Kathmandu (Tel: +977-1-4424111). World authority on High Altitude Pulmonary/Cerebral Edema (HAPE/HACE).
+  * **Patan Hospital:** Lagankhel, Lalitpur. Comprehensive tertiary care and charitable emergency treatment.
+
+#### 3. Evacuation Protocol
+For severe Lake Louise scores (≥6) or suspected HAPE (SpO₂ <70%), initiate descent immediately to Kagbeni (2,800m) while awaiting rotary wing clearance through the Nepal Civil Aviation Authority (CAAN).`;
+  }
+
+  if (q.includes('bigu') || destination.toLowerCase().includes('bigu') || q.includes('dolakha')) {
+    return `### 🗺️ Grounded Expedition Route: Kathmandu to Bigu Nunnery (Dolakha)
+
+- **Total Distance:** ~185 km | **Transit Duration:** 8 to 10 hours (4WD + foot traverse)
+- **Altitude Gain:** 1,400m (Kathmandu) → 1,970m (Charikot) → 950m (Tamakoshi River Valley / Singati) → 2,500m (Bigu Nunnery / Tashi Chime Gatsal).
+
+#### Key Waypoints & Road Conditions:
+1. **Kathmandu to Khadichaur / Mude:** Araniko Highway (NH03) & BP Highway connector. Paved with monsoon repair segments.
+2. **Mude to Charikot (1,970m):** District headquarters of Dolakha. Last major town with pharmacy, fuel, and district hospital.
+3. **Charikot to Singati Bazaar (950m):** Winding descent into the Tamakoshi river gorge. Unpaved dirt road prone to seasonal mudslides.
+4. **Singati to Bigu Nunnery (2,500m):** Steep single-track dirt road accessible only by high-clearance 4WD in dry season; otherwise requires 4-5 hour uphill pack mule trek.
+
+#### Medical Facilities en Route:
+- **Dolakha District Hospital (Charikot):** Basic emergency stabilization and maternal health.
+- **Nearest Helipad:** Charikot Army ground or Singati hydropower staging clearing.`;
+  }
+
+  return `### 🗺️ Grounded Expedition Route: ${origin} to ${destination} (Upper Mustang Corridor)
+
+- **Total Overland Distance:** ~425 km from Kathmandu via Pokhara and Beni
+- **Key Route:** Prithvi Highway → Pokhara (820m) → Baglung/Beni (830m) → Kali Gandaki Highway → Jomsom (2,743m) → Kagbeni (2,800m) → Tsarang (3,560m) → Lo Manthang (3,840m).
+
+#### Step-by-Step Waypoint Guidance:
+1. **Pokhara to Jomsom Transit:**
+   - *Option A (Recommended for Volunteers):* 20-minute STOL mountain flight (Tara Air / Summit Air) operating 06:00 - 10:30 AM before afternoon gorge winds exceed safety limits.
+   - *Option B (Overland 4WD):* 155 km (8-10 hours) following the Kali Gandaki river canyon via Tatopani hot springs and Ghasa. Rough rocky track.
+2. **Kagbeni to Tsarang (3,560m):** 52 km (3.5 hours by 4WD). Enter Upper Mustang restricted area at Kagbeni checkpost. Traverse via Chhusang and Syangboche pass (3,800m).
+3. **Tsarang to Lo Manthang & Tsonup (3,850m):** 24 km (1.5 hours). Cross Sungda La pass (3,850m) and Tsarang River bridge.
+
+#### Logistics Directives:
+- Ensure 4WD vehicles have high ground clearance and dual spare tires.
+- Acclimatize overnight in Kagbeni (2,800m) before ascending above 3,500m.
+- Satellite communication (Garmin inReach / Iridium) mandatory north of Kagbeni due to sparse cellular coverage.`;
 }
 
 // In production serve dist; in dev mount Vite middlewares

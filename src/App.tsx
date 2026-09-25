@@ -6,6 +6,7 @@ import { TriageModule } from './components/TriageModule.tsx';
 import { CulturalCodexModule } from './components/CulturalCodexModule.tsx';
 import { MonasteryArchiveModule } from './components/MonasteryArchiveModule.tsx';
 import { ImpactEngineModule } from './components/ImpactEngineModule.tsx';
+import { MapsGroundingModule } from './components/MapsGroundingModule.tsx';
 import { MobileFieldSimulator } from './components/MobileFieldSimulator.tsx';
 import { PublicWidgetModal } from './components/PublicWidgetModal.tsx';
 import { 
@@ -143,6 +144,10 @@ export default function App() {
           <MonasteryArchiveModule
             onSponsorInitiative={handleSponsorInitiative}
           />
+        )}
+
+        {activeTab === 'maps_grounding' && (
+          <MapsGroundingModule />
         )}
 
         {activeTab === 'impact' && (

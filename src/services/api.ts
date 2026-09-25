@@ -1,9 +1,10 @@
-import { AgentRole } from '../types/index.ts';
+import { AgentRole, MapsGroundingResponse } from '../types/index.ts';
 
 export interface ChatResponse {
   reply: string;
-  source: 'gemini-3.8-flash' | 'hgo-knowledge-base';
+  source: 'gemini-3.8-flash' | 'gemini-3.5-flash (Google Maps Grounded)' | 'hgo-knowledge-base';
   role?: AgentRole;
+  groundingMetadata?: any;
 }
 
 export async function askAgent(
@@ -134,6 +135,34 @@ export async function generateVolunteerBriefAI(payload: {
 - **Acclimatization Route:** Kathmandu (1,400m) -> Pokhara (820m) -> Jomsom (2,743m) -> Tsarang (3,560m) -> Lo Manthang (3,840m).
 - **Mandatory Gear:** 800-fill down jacket, Cat 4 UV glacier glasses, high-lumen headlamp with extra lithium batteries.
 - **Cultural Guidelines:** Circumambulate chortens clockwise; present white khata with palms facing upwards.`;
+  }
+}
+
+export async function fetchMapsExpeditionAI(payload: {
+  query: string;
+  expeditionOrigin?: string;
+  destination?: string;
+  category?: string;
+}): Promise<MapsGroundingResponse> {
+  try {
+    const res = await fetch('/api/agent/maps-expedition', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Maps expedition request failed');
+    return await res.json();
+  } catch (err) {
+    console.warn('Maps Grounding call failed, using client offline route atlas:', err);
+    return {
+      answer: `### 🗺️ Offline Expedition Route Guide (Grounding Unavailable)
+**Route:** ${payload.expeditionOrigin || 'Kathmandu'} → ${payload.destination || 'Upper Mustang'}
+- **Jomsom Airport (JMO):** Primary STOL mountain flight gateway (20 min flight from Pokhara).
+- **Overland Access:** Kali Gandaki Highway via Beni, Tatopani, Ghasa to Kagbeni (2,800m).
+- **Upper Mustang Trajectory:** Kagbeni → Chhusang → Syangboche pass (3,800m) → Tsarang (3,560m) → Lo Manthang (3,840m).
+- **Emergency Evacuation:** Western Regional Hospital (Pokhara), Manipal Teaching Hospital, or CIWEC Clinic (Kathmandu).`,
+      source: 'hgo-expedition-atlas (Offline Fallback)',
+    };
   }
 }
 

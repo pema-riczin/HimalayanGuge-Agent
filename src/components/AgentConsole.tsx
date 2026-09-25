@@ -11,7 +11,9 @@ import {
   ShieldAlert, 
   Cpu, 
   ArrowRight,
-  Stethoscope
+  Stethoscope,
+  MapPin,
+  Navigation
 } from 'lucide-react';
 import { AgentRole, ChatMessage } from '../types/index.ts';
 import { askAgent } from '../services/api.ts';
@@ -29,6 +31,7 @@ export const AgentConsole: React.FC<AgentConsoleProps> = ({
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [useMapsGrounding, setUseMapsGrounding] = useState<boolean>(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -40,6 +43,7 @@ I am the digital co-pilot for the **Himalayan Guge Organization (HGO)**, bridgin
 
 **Select an operational focus or ask anything below:**
 - **Field Ops:** Clinic stocks in Tsarang & Tsonup, high-altitude AMS emergency descent, volunteer acclimatization itineraries.
+- **Expedition Navigator:** Real-time Google Maps grounded routing, travel times, helipads, and referral hospitals (powered by **gemini-3.5-flash**).
 - **Cultural Codex:** Sowa-Rigpa herbal formulas (*Agar-35, Semde*), Three Humors balance, and instant English/Nepali/Tibetan medical translations.
 - **Impact Engine:** Converting raw field tallies into executive reports for Rotary/JJoy Foundation and personalized donor receipts.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -47,6 +51,7 @@ I am the digital co-pilot for the **Himalayan Guge Organization (HGO)**, bridgin
       suggestedActions: [
         'Check Tsonup clinic winter supply alerts',
         'Emergency descent protocol for Lake Louise Score > 6',
+        'Nearest emergency hospital in Pokhara/Kathmandu from Tsarang',
         'How does Sowa-Rigpa treat high-altitude rLung?',
         'Draft JJoy Foundation 4-day dental camp update'
       ]
@@ -79,7 +84,10 @@ I am the digital co-pilot for the **Himalayan Guge Organization (HGO)**, bridgin
     setLoading(true);
 
     try {
-      const response = await askAgent(query, role, { lowBandwidthMode });
+      const response = await askAgent(query, role, { 
+        lowBandwidthMode, 
+        useMapsGrounding: useMapsGrounding || role === 'route_intel' 
+      });
       
       const agentMsg: ChatMessage = {
         id: `agent-${Date.now()}`,
@@ -87,7 +95,8 @@ I am the digital co-pilot for the **Himalayan Guge Organization (HGO)**, bridgin
         role: response.role || role,
         text: response.reply,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        source: response.source,
+        source: response.source as any,
+        groundingMetadata: response.groundingMetadata,
       };
 
       setMessages((prev) => [...prev, agentMsg]);
@@ -111,6 +120,13 @@ I am the digital co-pilot for the **Himalayan Guge Organization (HGO)**, bridgin
       icon: Compass,
       desc: 'Holistic support across logistics, codex & impact',
       color: 'bg-amber-600 text-white'
+    },
+    {
+      id: 'route_intel',
+      label: 'Expedition Navigator',
+      icon: MapPin,
+      desc: 'Google Maps grounded routes, road status & hospitals (gemini-3.5-flash)',
+      color: 'bg-sky-600 text-white'
     },
     {
       id: 'field_ops',
@@ -213,8 +229,13 @@ I am the digital co-pilot for the **Himalayan Guge Organization (HGO)**, bridgin
                   <span>•</span>
                   <span>{m.timestamp}</span>
                   {m.source && (
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-800 text-amber-300/80 border border-stone-700">
-                      {m.source}
+                    <span className={`text-[10px] px-2 py-0.5 rounded border font-mono flex items-center gap-1 ${
+                      m.source.includes('Google Maps')
+                        ? 'bg-sky-950/80 text-sky-300 border-sky-800'
+                        : 'bg-stone-800 text-amber-300/80 border-stone-700'
+                    }`}>
+                      {m.source.includes('Google Maps') && <MapPin className="w-2.5 h-2.5 text-sky-400" />}
+                      <span>{m.source}</span>
                     </span>
                   )}
                 </div>
@@ -301,7 +322,40 @@ I am the digital co-pilot for the **Himalayan Guge Organization (HGO)**, bridgin
         </div>
 
         {/* Input Bar */}
-        <div className="p-3 sm:p-4 bg-stone-950/90 border-t border-stone-800">
+        <div className="p-3 sm:p-4 bg-stone-950/90 border-t border-stone-800 space-y-2.5">
+          {/* Grounding Mode Indicator & Switch */}
+          <div className="flex items-center justify-between text-xs px-1">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setUseMapsGrounding(!useMapsGrounding)}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all border ${
+                  useMapsGrounding || role === 'route_intel'
+                    ? 'bg-sky-500/20 text-sky-300 border-sky-500/50 shadow-sm'
+                    : 'bg-stone-900 text-stone-400 border-stone-800 hover:text-stone-300'
+                }`}
+                title="Ground responses with Google Maps data using gemini-3.5-flash"
+              >
+                <MapPin className="w-3.5 h-3.5 text-sky-400" />
+                <span>Google Maps Grounding</span>
+                <span className={`w-2 h-2 rounded-full ${useMapsGrounding || role === 'route_intel' ? 'bg-sky-400 animate-pulse' : 'bg-stone-600'}`} />
+              </button>
+              {(useMapsGrounding || role === 'route_intel') && (
+                <span className="text-[10px] text-sky-400 font-mono hidden sm:inline">
+                  gemini-3.5-flash with googleMaps tool
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigateToTab('maps_grounding')}
+              className="text-[11px] text-sky-400 hover:text-sky-300 font-medium flex items-center gap-1"
+            >
+              <span>Expedition Maps Hub</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
