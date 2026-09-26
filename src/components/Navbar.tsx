@@ -1,306 +1,196 @@
-import React, { useState } from 'react';
-import { 
-  Compass, 
-  Wifi, 
-  WifiOff, 
-  Mountain, 
-  Sparkles, 
-  Smartphone, 
-  Globe, 
-  Stethoscope, 
-  BookOpen, 
-  HeartHandshake, 
-  Layers,
-  CheckCircle2,
-  AlertCircle,
-  UploadCloud,
-  RefreshCw,
-  Database,
-  MapPin
-} from 'lucide-react';
+@import "tailwindcss";
 
-interface NavbarProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  lowBandwidthMode: boolean;
-  setLowBandwidthMode: (val: boolean) => void;
-  onOpenMobileSim: () => void;
-  onOpenPublicWidget: () => void;
-  unsyncedCount: number;
-  isNetworkOnline: boolean;
-  onSyncTriage?: () => void;
-  onResetDummyData?: () => void;
-  dummyNotification?: string | null;
+:root {
+  --md-sys-color-primary: #6750a4;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #eaddff;
+  --md-sys-color-on-primary-container: #21005d;
+  --md-sys-color-secondary: #625b71;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #e8def8;
+  --md-sys-color-on-secondary-container: #1d192b;
+  --md-sys-color-tertiary: #7d5260;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #ffd8e4;
+  --md-sys-color-on-tertiary-container: #31111d;
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+  --md-sys-color-background: #fef7ff;
+  --md-sys-color-on-background: #1d1b20;
+  --md-sys-color-surface: #fffbff;
+  --md-sys-color-on-surface: #1d1b20;
+  --md-sys-color-surface-variant: #e7e0ec;
+  --md-sys-color-on-surface-variant: #49454f;
+  --md-sys-color-outline: #79747e;
+  --md-sys-color-outline-variant: #cac4d0;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-surface-container-low: #f7f2fa;
+  --md-sys-color-surface-container: #f3edf7;
+  --md-sys-color-surface-container-high: #ece6f0;
+  --md-sys-color-inverse-surface: #322f35;
+  --md-sys-color-inverse-on-surface: #f5eff7;
+  --md-sys-color-inverse-primary: #d0bcff;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
-  activeTab,
-  setActiveTab,
-  lowBandwidthMode,
-  setLowBandwidthMode,
-  onOpenMobileSim,
-  onOpenPublicWidget,
-  unsyncedCount,
-  isNetworkOnline,
-  onSyncTriage,
-  onResetDummyData,
-  dummyNotification,
-}) => {
-  const [syncing, setSyncing] = useState(false);
+@theme {
+  --color-primary: var(--md-sys-color-primary);
+  --color-on-primary: var(--md-sys-color-on-primary);
+  --color-primary-container: var(--md-sys-color-primary-container);
+  --color-on-primary-container: var(--md-sys-color-on-primary-container);
+  --color-secondary: var(--md-sys-color-secondary);
+  --color-on-secondary: var(--md-sys-color-on-secondary);
+  --color-secondary-container: var(--md-sys-color-secondary-container);
+  --color-on-secondary-container: var(--md-sys-color-on-secondary-container);
+  --color-tertiary: var(--md-sys-color-tertiary);
+  --color-on-tertiary: var(--md-sys-color-on-tertiary);
+  --color-tertiary-container: var(--md-sys-color-tertiary-container);
+  --color-on-tertiary-container: var(--md-sys-color-on-tertiary-container);
+  --color-error: var(--md-sys-color-error);
+  --color-on-error: var(--md-sys-color-on-error);
+  --color-error-container: var(--md-sys-color-error-container);
+  --color-on-error-container: var(--md-sys-color-on-error-container);
+  --color-background: var(--md-sys-color-background);
+  --color-on-background: var(--md-sys-color-on-background);
+  --color-surface: var(--md-sys-color-surface);
+  --color-on-surface: var(--md-sys-color-on-surface);
+  --color-surface-variant: var(--md-sys-color-surface-variant);
+  --color-on-surface-variant: var(--md-sys-color-on-surface-variant);
+  --color-outline: var(--md-sys-color-outline);
+  --color-outline-variant: var(--md-sys-color-outline-variant);
+  --color-surface-container-low: var(--md-sys-color-surface-container-low);
+  --color-surface-container: var(--md-sys-color-surface-container);
+  --color-surface-container-high: var(--md-sys-color-surface-container-high);
+}
 
-  const tabs = [
-    { id: 'copilot', label: 'AI Co-Pilot', icon: Sparkles, badge: 'Gemini 3.8' },
-    { id: 'field_ops', label: 'Field Ops & Clinics', icon: Layers },
-    { id: 'triage', label: 'AMS & Health Triage', icon: Stethoscope, badge: unsyncedCount > 0 ? `${unsyncedCount} un-synced` : undefined },
-    { id: 'cultural_codex', label: 'Sowa-Rigpa Codex', icon: BookOpen },
-    { id: 'heritage', label: 'Monasteries & Nunneries', icon: Mountain },
-    { id: 'maps_grounding', label: 'Expedition Maps AI', icon: MapPin, badge: 'Maps Grounded' },
-    { id: 'impact', label: 'Impact & Donors', icon: HeartHandshake },
-  ];
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-  const handleManualSync = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!onSyncTriage || !isNetworkOnline || syncing) return;
-    setSyncing(true);
-    setTimeout(() => {
-      onSyncTriage();
-      setSyncing(false);
-    }, 400);
-  };
+  html {
+    background: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
+  }
 
-  return (
-    <header className="sticky top-0 z-40 bg-stone-950/95 backdrop-blur-md border-b border-stone-800 text-stone-100 shadow-xl">
-      {/* Top Banner with Himalayan Context & Low Bandwidth Status */}
-      <div className="bg-gradient-to-r from-amber-950/70 via-stone-900 to-amber-950/70 px-4 py-1.5 border-b border-amber-900/30 text-xs flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-stone-300">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-amber-400 uppercase tracking-wider text-[11px]">Active Sector:</span>
-          <span>Upper Mustang (Lo Manthang 3,840m • Tsarang • Tsonup) & Bigu Nunnery</span>
-        </div>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(180deg, #f7f2fa 0%, #f3edf7 100%);
+    color: var(--md-sys-color-on-background);
+  }
 
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-3 text-stone-400 text-[11px]">
-            <span>Partners: <strong className="text-stone-200">JJoy Foundation</strong> & <strong className="text-stone-200">Rotary Clubs</strong></span>
-            <span className="text-stone-600">|</span>
-            <span className="font-tibetan text-amber-300/80">བོད་ཀྱི་གསོ་རིག་སྨན་ཁང་།</span>
-          </div>
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
 
-          {/* Low Bandwidth Mode Toggle */}
-          <button
-            onClick={() => setLowBandwidthMode(!lowBandwidthMode)}
-            className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-all ${
-              lowBandwidthMode
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                : 'bg-stone-800 text-stone-300 border border-stone-700 hover:border-stone-600'
-            }`}
-            title="Toggle Low-Bandwidth Mode for remote satellite or offline field use"
-          >
-            {lowBandwidthMode ? (
-              <>
-                <WifiOff className="w-3 h-3 text-amber-400" />
-                <span>Low-Bandwidth (Satellite)</span>
-              </>
-            ) : (
-              <>
-                <Wifi className="w-3 h-3 text-emerald-400" />
-                <span>Standard Broadband</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
+  }
 
-      {/* Demo Data Loaded Notification Toast */}
-      {dummyNotification && (
-        <div className="bg-amber-600/90 border-b border-amber-500 text-white text-xs font-semibold px-4 py-1.5 flex items-center justify-center gap-2 shadow animate-fade-in">
-          <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-          <span>{dummyNotification}</span>
-        </div>
-      )}
+  .font-tibetan {
+    font-family: 'Noto Serif Tibetan', serif, 'Tibetan Machine Uni', 'Microsoft Himalaya';
+  }
+}
 
-      {/* Main Header Row */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-amber-900 border border-amber-500/30 text-white shadow-lg shadow-amber-950/50">
-            <Compass className="w-6 h-6 text-amber-200 animate-spin-slow" />
-            <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 border-2 border-stone-900 rounded-full ${isNetworkOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-          </div>
+@layer utilities {
+  .m3-surface {
+    background: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+  }
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-cinzel text-lg font-bold tracking-wider text-white">
-                HGO-Agent
-              </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                AI Co-Pilot
-              </span>
-            </div>
-            <p className="text-[11px] text-stone-400 leading-tight">
-              Himalayan Guge Organization • <span className="font-tibetan text-amber-200/90 text-xs">ཧི་མ་ལ་ཡའི་གུ་གེ་ཚོགས་པ།</span>
-            </p>
-          </div>
-        </div>
+  .m3-surface-container {
+    background: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
+  }
 
-        {/* Center: Visual Sync Status Indicator for TriageModule Records */}
-        <div 
-          onClick={() => setActiveTab('triage')}
-          className={`cursor-pointer hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all shadow-sm ${
-            isNetworkOnline
-              ? unsyncedCount > 0
-                ? 'bg-amber-950/50 border-amber-700/60 hover:bg-amber-950/80'
-                : 'bg-emerald-950/40 border-emerald-800/50 hover:bg-emerald-950/60'
-              : 'bg-rose-950/50 border-rose-800/60 hover:bg-rose-950/70'
-          }`}
-          title="Triage records sync status. Click to open Triage Station."
-        >
-          {/* Signal Indicator Dot */}
-          <div className="flex items-center gap-1.5">
-            <span className="relative flex h-2.5 w-2.5">
-              {isNetworkOnline ? (
-                <>
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </>
-              ) : (
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-              )}
-            </span>
+  .m3-outline {
+    border: 1px solid var(--md-sys-color-outline);
+  }
 
-            <span className={`text-xs font-bold uppercase tracking-wider ${isNetworkOnline ? 'text-emerald-400' : 'text-rose-400'}`}>
-              {isNetworkOnline ? 'Online' : 'Offline'}
-            </span>
-          </div>
+  .m3-card {
+    @apply rounded-xl border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface)] shadow-sm;
+  }
 
-          <span className="text-stone-600">|</span>
+  .m3-elevated {
+    @apply rounded-xl border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface)] shadow-md;
+  }
 
-          {/* Triage Sync State Text */}
-          <div className="flex items-center gap-1.5 text-xs">
-            <Stethoscope className="w-3.5 h-3.5 text-stone-400" />
-            <span className="text-stone-300 font-medium">
-              {isNetworkOnline ? (
-                unsyncedCount === 0 ? (
-                  <span className="text-emerald-300 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                    Triage Records Synced
-                  </span>
-                ) : (
-                  <span className="text-amber-300 flex items-center gap-1 font-semibold">
-                    <AlertCircle className="w-3 h-3 text-amber-400" />
-                    {unsyncedCount} Triage Pending Sync
-                  </span>
-                )
-              ) : (
-                <span className="text-rose-300 flex items-center gap-1">
-                  <WifiOff className="w-3 h-3 text-rose-400" />
-                  {unsyncedCount > 0 ? `${unsyncedCount} Records Cached Offline` : 'Offline Cache Ready'}
-                </span>
-              )}
-            </span>
-          </div>
+  .m3-button-filled {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-on-primary shadow-sm transition-all duration-200;
+  }
 
-          {/* Inline Quick Sync Button if Online & Records Pending */}
-          {isNetworkOnline && unsyncedCount > 0 && onSyncTriage && (
-            <button
-              onClick={handleManualSync}
-              disabled={syncing}
-              className="ml-1 px-2 py-0.5 rounded-md bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-semibold flex items-center gap-1 shadow-sm transition-colors"
-              title="Sync pending triage records now"
-            >
-              <RefreshCw className={`w-3 h-3 ${syncing ? 'animate-spin' : ''}`} />
-              <span>{syncing ? 'Syncing...' : 'Sync Now'}</span>
-            </button>
-          )}
-        </div>
+  .m3-button-filled:hover {
+    filter: brightness(0.98);
+  }
 
-        {/* Channel Previews: Mobile Field Messenger & Public Web Widget */}
-        <div className="flex items-center gap-2">
-          {/* Mobile-only compact sync status badge */}
-          <div 
-            onClick={() => setActiveTab('triage')}
-            className={`sm:hidden flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-bold ${
-              isNetworkOnline
-                ? 'bg-emerald-950/60 border-emerald-700/60 text-emerald-300'
-                : 'bg-rose-950/60 border-rose-700/60 text-rose-300'
-            }`}
-          >
-            <span className={`w-2 h-2 rounded-full ${isNetworkOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-            <span>{isNetworkOnline ? 'Online' : 'Offline'}</span>
-            {unsyncedCount > 0 && (
-              <span className="px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono text-[9px]">
-                {unsyncedCount}
-              </span>
-            )}
-          </div>
+  .m3-button-filled:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
 
-          <button
-            onClick={onOpenMobileSim}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition-colors shadow-sm"
-          >
-            <Smartphone className="w-3.5 h-3.5 text-sky-400" />
-            <span className="hidden md:inline">Field Mobile Bot</span>
-            <span className="md:hidden">Field Bot</span>
-          </button>
+  .m3-button-filled:active {
+    filter: brightness(0.96);
+  }
 
-          <button
-            onClick={onOpenPublicWidget}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-700/40 hover:bg-amber-700/60 text-amber-200 border border-amber-600/40 transition-colors shadow-sm"
-          >
-            <Globe className="w-3.5 h-3.5 text-amber-300" />
-            <span className="hidden md:inline">Web Widget Preview</span>
-            <span className="md:hidden">Widget</span>
-          </button>
+  .m3-button-tonal {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-secondary-container px-4 py-2.5 text-sm font-medium text-on-secondary-container shadow-sm transition-all duration-200;
+  }
 
-          {onResetDummyData && (
-            <button
-              onClick={onResetDummyData}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-stone-800 hover:bg-amber-950/80 text-amber-300 hover:text-amber-200 border border-stone-700 hover:border-amber-600/50 transition-colors shadow-sm"
-              title="Reset and reload fresh sample dataset (clinics, inventory, triage records)"
-            >
-              <Database className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden lg:inline">Reset Demo Data</span>
-              <span className="lg:hidden">Demo Data</span>
-            </button>
-          )}
-        </div>
-      </div>
+  .m3-button-outlined {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-outline bg-transparent px-4 py-2.5 text-sm font-medium text-primary transition-all duration-200;
+  }
 
-      {/* Navigation Tabs */}
-      <div className="max-w-7xl mx-auto px-4 overflow-x-auto no-scrollbar">
-        <div className="flex space-x-1 border-t border-stone-800/80 pt-1 pb-1.5">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'bg-amber-600 text-white shadow-md shadow-amber-900/40 font-semibold'
-                    : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/60'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-stone-400'}`} />
-                <span>{tab.label}</span>
-                {tab.badge && (
-                  <span
-                    className={`ml-1 text-[10px] px-1.5 py-0.2 rounded-full ${
-                      isActive
-                        ? 'bg-black/30 text-amber-200'
-                        : tab.badge.includes('un-synced')
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                        : 'bg-stone-800 text-amber-400'
-                    }`}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </header>
-  );
-};
+  .m3-button-text {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-3 py-2 text-sm font-medium text-primary transition-all duration-200;
+  }
+
+  .m3-button-filled:hover,
+  .m3-button-tonal:hover,
+  .m3-button-outlined:hover,
+  .m3-button-text:hover {
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0.08));
+  }
+
+  .m3-focus-ring {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(121, 116, 126, 0.12);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(103, 80, 164, 0.34);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(103, 80, 164, 0.5);
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+}
